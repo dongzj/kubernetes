@@ -1,0 +1,34 @@
+name: Go Build Binary
+
+on:
+  push:
+    branches: [ v1.22.3 ]
+  pull_request:
+    branches: [ v1.22.3 ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/setup-go@v2
+      with:
+          go-version: '1.16.8'
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      env:
+        GOPATH: ${{ runner.workspace }}
+        GO111MODULE: off
+      with:
+        path: src/k8s.io/kubernetes
+
+    - name: Build
+      run: make WHAT=cmd/kubelet
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-${{ github.run_id }}
+        path: _output/*
